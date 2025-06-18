@@ -1,0 +1,327 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* Tüm öğelerin kutu modelini ayarlar */
+  
+}
+
+.Ana-class {
+  display: flex;
+  height: 80vh;                   /* Sayfa yüksekliği kadar */
+  justify-content: center;         /* Kutuları yatayda ortalar */
+  padding: 0 150px;                /* Sağdan ve soldan 150px boşluk */
+  gap: 30px;
+
+}
+
+.üst-kutu {
+  text-align: center;
+  font-size: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Kutu alanları arasındaki boşluk */
+}
+
+.kutu {
+  position: relative;
+  background-color: #f0f0f0;
+  padding: 10px;                                /* İçerik ile kutu arasındaki boşluk */
+  width: 380px;                            /* Kutu genişliği */
+  height: 75vh;                             /* Kutu yüksekliği */
+  border-radius: 20px;                       /* Kutu köşelerinin yuvarlaklığı */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Gölge efekti */
+  display: flex;       
+  flex-direction: column;                     /* Flexbox kullanarak içeriği hizalama */ 
+  font-size: 20px;                          /* Yazı boyutu */
+  font-family: sans-serif;
+  color: #333;        /* Yazı rengi */   
+  padding-top: 60px;
+                      
+}
+
+.tasklar {
+  overflow-y: auto; 
+  display: flex;       
+  flex-direction: column;
+  gap: 30px;
+}
+
+.gorev-icerik {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%; /* İçeriğin tüm genişliği kaplamasını sağlar */
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+
+}
+
+.Task-isim{
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.Son-tarih {
+  font-weight: bold;
+  font-size: 14px;
+  color: #666;
+  
+}
+
+
+h1 {
+  text-align: center;
+  font-size: 36px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  text-align: center;
+  font-size: 20px;
+  margin: 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  margin-top: 40px;
+  font-size: 14px;
+  color: #666;
+}
+
+.create-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: white; /* Beyaz yazı rengi */
+  border: none; /* Kenarlık yok */
+  padding: 10px 20px; /* İç boşluk */
+  text-align: center; /* Metni ortala */
+  text-decoration: none; /* Alt çizgi yok */
+  display: inline-block; /* Blok elementi gibi davran */
+  font-size: 16px; /* Yazı boyutu */
+  cursor: pointer; /* İmleç el işareti */
+  border-radius: 8px; /* Yuvarlak köşeler */
+  background-color: hsl(0, 100%, 50%);
+  animation: gokkusagiAnimasyon 3s linear infinite;
+  
+}
+
+
+@keyframes gokkusagiAnimasyon {
+  0%   { background-color: hsl(0, 100%, 50%); }
+  25%  { background-color: hsla(90, 100%, 50%, 0.623); }
+  50%  { background-color: hsl(180, 100%, 50%); }
+  75%  { background-color: hsl(270, 100%, 50%); }
+  100% { background-color: hsl(360, 100%, 50%); }
+}
+
+
+
+
+.task-uretme {
+  position: fixed;
+  font-size: 20px;
+  display: flex;
+  text-align: center;
+  flex-direction: column;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000; /* Diğer öğelerin üstünde görünmesi için yüksek z-index */
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+.pencere-icerigi-onplan {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  width: 800px;
+  height: 600px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+
+}
+
+h2.pencere-icerigi-onplan-title {
+  font-size: 35px;
+  text-align: left;
+ border-bottom: 2px solid #000;
+ padding-bottom: 8px; 
+ width: 100%;
+ padding: 15px;
+ 
+}
+
+.Ana-form-uretme{
+  display: flex;
+  flex-direction: column;
+  gap: 10px; 
+  padding-top: 30px;
+  padding-inline: 30px;
+  height: 80%;
+}
+
+.form-class {
+display: flex;
+flex-direction: column; /* Elemanları alt alta dizer */
+text-align: left;
+
+}
+
+#Task-adı {
+  width: 100%;
+  padding: 10px;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+#Task-acıklaması {
+  width: 100%;
+  padding: 10px;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  border-radius: 14px;
+  height: 160px; /* Yüksekliği artırıldı */
+}
+#Task-Tarihi {
+  width: 100%;
+  padding: 10px;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.button-class {
+  display: flex;
+  justify-content: space-between; 
+  margin-top: 20px; 
+}
+
+#vazgec {
+  background-color: #d3bd9a; 
+  color: white; 
+  border: none; 
+  padding: 10px 20px; 
+  text-align: center; 
+  display: inline-block; 
+  font-size: 16px; 
+  cursor: pointer; 
+  border-radius: 8px; 
+  width: 300px; 
+  height: 70px; 
+}
+
+#olustur {
+  background-color: #4CAF50; 
+  color: white; 
+  border: none; 
+  padding: 10px 20px; 
+  text-align: center; 
+  display: inline-block; 
+  font-size: 16px; 
+  cursor: pointer; 
+  border-radius: 8px;
+  width: 300px; 
+  height: 70px; 
+}
+
+.task-edit-onplan {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  width: 800px;
+  height: 600px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column; /* Elemanları alt alta dizer */
+
+}
+
+h2.pencere-icerigi-edit-title {
+  font-size: 35px;
+  text-align: left;
+  border-bottom: 2px solid #000;
+  padding-bottom: 8px; 
+  width: 100%;
+  padding: 15px;
+  flex-direction: column; /* Elemanları alt alta dizer */
+ 
+}
+.Ana-form-edit {  
+display: flex;
+  flex-direction: column;
+  gap: 10px; 
+  padding-top: 10px;
+  padding-inline: 30px;
+  height: 80%;
+  }
+  
+
+.form-group {
+  display: flex;
+  flex-direction: column; /* Elemanları alt alta dizer */
+  text-align: left;
+}
+#Task-Durum-editleme {
+  width: 100%;
+  padding: 10px;
+  font-size: 18px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+#sil {
+  background-color: #f44336; 
+  color: white; 
+  border: none; 
+  padding: 10px 10px; 
+  text-align: center; 
+  display: inline-block; 
+  font-size: 16px; 
+  cursor: pointer; 
+  border-radius: 8px; 
+  width: 230px; 
+  height: 70px; 
+}
+#kaydet {
+  background-color: #4CAF50; 
+  color: white; 
+  border: none; 
+  padding: 10px 10px; 
+  text-align: center; 
+  display: inline-block; 
+  font-size: 16px; 
+  cursor: pointer; 
+  border-radius: 8px;
+  width: 230px; 
+  height: 70px; 
+}
+#vazgec2 {
+  background-color: #d3bd9a; 
+  color: white; 
+  border: none; 
+  padding: 10px 10px; 
+  text-align: center; 
+  display: inline-block; 
+  font-size: 16px; 
+  cursor: pointer; 
+  border-radius: 8px; 
+  width: 230px; 
+  height: 70px; 
+}
+
+.button-class2 {
+  display: flex;
+  justify-content: space-between; 
+  margin-top: 20px; 
+}

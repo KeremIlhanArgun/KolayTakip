@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Sayfayı mobile uyumlu yapıyor büyütüp küçültüğünde  -->
+  <meta charset="UTF-8"> <!-- Sayfanın Türkçe karakter kullanmak için UTF-8 . -->
+  <meta name="description" content="Kolay Takip, günlük işlerinizi kolayca takip etmenizi sağlar.">
+  <!-- Sayfanın açıklamasını yapar, arama motorları için önemlidir. -->
+  <meta name="keywords" content="kolay takip, günlük işler, iş yönetimi">
+  <!-- Sayfanın anahtar kelimelerini belirler, arama motorları için önemlidir. -->
+  <meta name="author" content="Kerem Argun">
+  <!-- Sayfanın yazarını belirtir, genellikle web sitesi sahibi veya geliştirici. -->
+  <link rel="icon" href="icon.png"> <!-- ikon ekleme kodu  -->
+  <link rel="stylesheet" href="style.css"> <!-- Css i burdan bağlıyoruz. -->
+  <title>Kolay Takip</title>
+
+</head>
+
+
+
+
+<!-- Burası body kısmı -->
+
+<body>
+  <header>
+    <h1>Kolay Takip</h1>
+  </header>
+
+  <!-- Ana class  -->
+
+  <main class="Ana-class">
+
+    <section>
+      <div class="üst-kutu">
+        <h2>OPEN</h2>
+        <div class="kutu">
+          <button id="button1" class="create-button">Yeni Task Ekle</button>
+          <div class="tasklar" id="open">
+            <div class="gorev-icerik">
+              <span class="Task-isim">Task isim</span>
+              <span class="Son-tarih">Son tarih</span>
+            </div>
+            <div class="gorev-icerik">
+              <span class="Task-isim">Task isim</span>
+              <span class="Son-tarih">Son tarih</span>
+            </div>
+            <div class="gorev-icerik">
+              <span class="Task-isim">Task isim</span>
+              <span class="Son-tarih">Son tarih</span>
+            </div>
+            <div class="gorev-icerik">
+              <span class="Task-isim">Task isim</span>
+              <span class="Son-tarih">Son tarih</span>
+            </div>
+            <div class="gorev-icerik">
+              <span class="Task-isim">Task isim</span>
+              <span class="Son-tarih">Son tarih</span>
+            </div>
+            <div class="gorev-icerik">
+              <span class="Task-isim">Task isim</span>
+              <span class="Son-tarih">Son tarih</span>
+            </div>
+            <div class="gorev-icerik">
+              <span class="Task-isim">Task isim</span>
+              <span class="Son-tarih">Son tarih</span>
+            </div>
+            <div class="gorev-icerik">
+              <span class="Task-isim">Task isim</span>
+              <span class="Son-tarih">Son tarih</span>
+            </div>
+            <div class="gorev-icerik">
+              <span class="Task-isim">Task isim</span>
+              <span class="Son-tarih">Son tarih</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section>
+      <div class="üst-kutu">
+        <h2>IN PROGRESS</h2>
+        <div class="kutu">
+        </div>
+      </div>
+    </section>
+
+
+    <section>
+      <div class="üst-kutu">
+        <h2>DONE</h2>
+        <div class="kutu"></div>
+      </div>
+    </section>
+
+
+  </main>
+
+
+
+
+  <!-- Yeni task ekleme kısmı -->
+  <!-- <div class='task-uretme' id='yeni-task-ekleme-arkaplan'>
+    <div class="pencere-icerigi-onplan">
+      <h2 class="pencere-icerigi-onplan-title">Yeni Task Ekle</h2>
+
+      <form class="Ana-form-uretme">
+
+        <div class="form-class">
+          <label for="Task-adı">Task Adı</label>
+          <input type="text" id="Task-adı" name="Task-adı" maxlength="100" required>
+        </div>
+
+        <div class="form-class">
+          <label for="Task-acıklaması">Task Açıklaması</label>
+          <input type="text" id="Task-acıklaması" name="Task-acıklaması" maxlength="300">
+        </div>
+
+        <div class="form-class">
+          <label for="Task-Tarihi">Task Tarihi</label>
+          <input type="date" id="Task-Tarihi" name="Task-Tarihi">
+        </div>
+
+        <div class="button-class">
+          <button type="button" id="vazgec" class="vazgec-button">Vazgeç</button>
+          <button type="submit" id="olustur" class="olustur-button">Oluştur</button>
+        </div>
+
+      </form>
+    </div>
+  </div> -->
+
+  <!-- Taskı düzenleme kısmı -->
+  <div class="task-uretme" id="task-edit-arkaplan">
+    <div class="task-edit-onplan">
+      <h2 class="pencere-icerigi-edit-title ">Task Düzenle</h2>
+
+      <form class="Ana-form-edit">
+
+        <div class="form-class">
+          <label for="Task-adı">Task Adı</label>
+          <input type="text" id="Task-adı" name="Task-adı" maxlength="100" required>
+        </div>
+
+        <div class="form-class">
+          <laber for="Task-acıklaması">Task Açıklaması</label>
+            <input type="text" id="Task-acıklaması" name="Task-acıklaması" maxlength="300">
+        </div>
+
+        <div class="form-class">
+          <label for="Task-Tarihi">Task Tarihi</label>
+          <input type="date" id="Task-Tarihi" name="Task-Tarihi">
+        </div>
+
+        <div class="form-group">
+          <label for="Task-Durum-editleme">Task Durumu</label>
+          <select id="Task-Durum-editleme" name="Task-Durum-editleme">
+            <option value="open">Open</option>
+            <option value="in-progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+
+          <div class="button-class2">
+            <button type="button" id="vazgec2" class="vazgec-button">Vazgeç</button>
+            <button type=button id=sil class="sil-button">Sil</button>
+            <button type="submit" id="kaydet" class="olustur-button">Kaydet</button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+
+
+
+  <!--  Footer kısmı  -->
+
+  <footer class="footer">
+    <p>&copy; 2025 Kolay Takip. Tüm hakları saklıdır.</p>
+  </footer>
+
+
+
+  <script src="script.js"></script>
+
+
+</body>
