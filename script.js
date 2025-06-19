@@ -1,4 +1,192 @@
 document.addEventListener("DOMContentLoaded", function () {
+  let tasks = [];
+  
+  const STORAGE_KEY = 'kolayTakipTasks';
+  
+  let isLoading = false;
+  
+  function setLoadingState(loading) {
+    isLoading = loading;
+    
+    const createButton = document.getElementById('olustur-button');
+    if (createButton) {
+      createButton.disabled = loading;
+    }
+    
+    const saveButtons = document.querySelectorAll('#kaydet');
+    saveButtons.forEach(button => {
+      button.disabled = loading;
+    });
+    
+    const deleteButtons = document.querySelectorAll('#sil');
+    deleteButtons.forEach(button => {
+      button.disabled = loading;
+    });
+    
+    const vazgecButtons = document.querySelectorAll('#vazgec, #vazgec2');
+    vazgecButtons.forEach(button => {
+      button.disabled = loading;
+    });
+    
+    const loadingIndicator = document.querySelector('.loading-indicator');
+    if (loadingIndicator) {
+      loadingIndicator.style.display = loading ? 'block' : 'none';
+    }
+  }
+  
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  
+  async function loadTasksFromStorage() {
+    setLoadingState(true);
+    try {
+      await delay(300); 
+      
+      const storedTasks = localStorage.getItem(STORAGE_KEY);
+      if (storedTasks) {
+        try {
+          tasks = JSON.parse(storedTasks);
+        } catch (error) {
+          console.error('Error loading tasks from localStorage:', error);
+          tasks = [];
+        }
+      }
+    } finally {
+      setLoadingState(false);
+    }
+  }
+  
+  async function saveTasksToStorage() {
+    setLoadingState(true);
+    try {
+      await delay(300); 
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    } finally {
+      setLoadingState(false);
+    }
+  }
+  
+  async function addTask(taskData) {
+    setLoadingState(true);
+    try {
+      await delay(300); 
+      
+      const newTask = {
+        id: Date.now().toString(), 
+        name: taskData.name,
+        description: taskData.description,
+        date: taskData.date,
+        status: 'open', 
+        createdAt: new Date().toISOString()
+      };
+      
+      tasks.push(newTask); 
+      await saveTasksToStorage();
+      return newTask;
+    } finally {
+      setLoadingState(false);
+    }
+  }
+  
+  async function updateTask(taskId, updatedData) {
+    setLoadingState(true);
+    try {
+      await delay(300); 
+      
+      const taskIndex = tasks.findIndex(task => task.id === taskId); 
+      if (taskIndex !== -1) {
+        tasks[taskIndex] = { ...tasks[taskIndex], ...updatedData }; 
+        await saveTasksToStorage();
+        return tasks[taskIndex];
+      }
+      return null;
+    } finally {
+      setLoadingState(false);
+    }
+  }
+  
+  async function deleteTask(taskId) {
+    setLoadingState(true);
+    try {
+      await delay(300); 
+      
+      const taskIndex = tasks.findIndex(task => task.id === taskId);
+      if (taskIndex !== -1) {
+        tasks.splice(taskIndex, 1); 
+        await saveTasksToStorage();
+        return true;
+      }
+      return false;
+    } finally {
+      setLoadingState(false);
+    }
+  }
+  
+  function getTasksByStatus(status) {
+    return tasks.filter(task => task.status === status); 
+  }
+  
+  function renderTasks() {
+    const openContainer = document.getElementById('open');
+    const inProgressContainer = document.getElementById('in-progress');
+    const doneContainer = document.getElementById('done');
+    
+    if (openContainer) openContainer.innerHTML = '';
+    if (inProgressContainer) inProgressContainer.innerHTML = '';
+    if (doneContainer) doneContainer.innerHTML = '';
+    
+    tasks.forEach(task => {
+      const taskElement = createTaskElement(task);
+      const container = getContainerByStatus(task.status);
+      if (container) {
+        container.appendChild(taskElement);
+        
+        const parentKutu = container.closest('.kutu');
+        if (parentKutu) {
+          updateTaskStatus(taskElement, parentKutu);
+        }
+      }
+    });
+  }
+  
+  function createTaskElement(task) {
+    const taskElement = document.createElement('div');
+    taskElement.classList.add('gorev-icerik');
+    taskElement.setAttribute('data-task-id', task.id);
+    
+    const taskName = document.createElement('span');
+    taskName.classList.add('Task-isim');
+    taskName.textContent = task.name;
+    
+    const taskDate = document.createElement('span');
+    taskDate.classList.add('Son-tarih');
+    taskDate.textContent = formatDate(task.date);
+    
+    taskElement.appendChild(taskName);
+    taskElement.appendChild(taskDate);
+    
+    taskElement.addEventListener('click', function() {
+      const taskId = this.getAttribute('data-task-id');
+      const currentTask = tasks.find(t => t.id === taskId);
+      if (currentTask) {
+        openEditModal(taskElement, currentTask.name, currentTask.description, currentTask.date);
+      }
+    });
+    
+    makeTaskDraggable(taskElement);
+    return taskElement;
+  }
+  
+  function getContainerByStatus(status) {
+    switch (status) {
+      case 'open': return document.getElementById('open');
+      case 'in-progress': return document.getElementById('in-progress');
+      case 'done': return document.getElementById('done');
+      default: return document.getElementById('open');
+    }
+  }
+
   const button = document.getElementById("button1"); 
   const modal = document.getElementById("task-edit-arkaplan"); 
   const vazgec = document.getElementById("vazgec2");
@@ -21,7 +209,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const nameValue = nameInput.value.trim();
     const dateValue = dateInput.value;
     
-    if (nameValue !== '' && isValidDate(dateValue)) {
+    if (nameValue !== '' && isValidDate(dateValue) && !isLoading) {
       createButtonModal.disabled = false;
     } else {
       createButtonModal.disabled = true;
@@ -127,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
       kutu.style.backgroundColor = '';
     });
     
-    kutu.addEventListener('drop', function(e) {
+    kutu.addEventListener('drop', async function(e) {
       e.preventDefault();
       kutu.style.backgroundColor = '';
       
@@ -136,8 +324,25 @@ document.addEventListener("DOMContentLoaded", function () {
       if (draggedTask && tasklarDiv && draggedTask.parentNode !== tasklarDiv) {
         tasklarDiv.appendChild(draggedTask);
         updateTaskStatus(draggedTask, kutu);
+        
+        const taskId = draggedTask.getAttribute('data-task-id');
+        const newStatus = getStatusFromContainer(tasklarDiv);
+        if (taskId && newStatus) {
+          try {
+            await updateTask(taskId, { status: newStatus });
+          } catch (error) {
+            console.error('Error updating task status:', error);
+          }
+        }
       }
     });
+  }
+  
+  function getStatusFromContainer(container) {
+    if (container.id === 'open') return 'open';
+    if (container.id === 'in-progress') return 'in-progress';
+    if (container.id === 'done') return 'done';
+    return 'open';
   }
   
   if (taskForm) {
@@ -183,7 +388,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (createButtonModal) {
-    createButtonModal.addEventListener("click", function () {
+    createButtonModal.addEventListener("click", async function () {
       const nameInputValue = document.getElementById('Task-adı').value;
       const descriptionInput = document.getElementById('Task-acıklaması').value;
       const dateInputValue = document.getElementById('Task-Tarihi').value;
@@ -191,38 +396,26 @@ document.addEventListener("DOMContentLoaded", function () {
       if (nameInputValue.trim() !== '' && isValidDate(dateInputValue)) {
         YeniTaskEkle.style.display = "none";
         
-        const TaskKartEkle = document.createElement('div');
-        TaskKartEkle.classList.add('gorev-icerik');
-
-        const Taskisim = document.createElement('span');
-        Taskisim.classList.add('Task-isim');
-        Taskisim.textContent = nameInputValue;
-
-        const TaskTarih = document.createElement('span');
-        TaskTarih.classList.add('Son-tarih');
-        TaskTarih.textContent = formatDate(dateInputValue);
-
-        TaskKartEkle.appendChild(Taskisim);
-        TaskKartEkle.appendChild(TaskTarih);
-
-        TaskKartEkle.setAttribute('data-description', descriptionInput);
-        TaskKartEkle.setAttribute('data-name', nameInputValue);
-        TaskKartEkle.setAttribute('data-date', dateInputValue);
-
-        TaskKartEkle.addEventListener("click", function() {
-          const currentName = this.getAttribute('data-name');
-          const currentDescription = this.getAttribute('data-description');
-          const currentDate = this.getAttribute('data-date');
-          openEditModal(TaskKartEkle, currentName, currentDescription, currentDate);
-        });
-
-        makeTaskDraggable(TaskKartEkle);
-
-        openAlan.appendChild(TaskKartEkle);
-
-        document.getElementById('Task-adı').value = '';
-        document.getElementById('Task-acıklaması').value = '';
-        document.getElementById('Task-Tarihi').value = '';
+        try {
+          const newTask = await addTask({
+            name: nameInputValue,
+            description: descriptionInput,
+            date: dateInputValue
+          });
+          
+          const taskElement = createTaskElement(newTask);
+          const openContainer = document.getElementById('open');
+          if (openContainer) {
+            openContainer.appendChild(taskElement);
+          }
+          
+          document.getElementById('Task-adı').value = '';
+          document.getElementById('Task-acıklaması').value = '';
+          document.getElementById('Task-Tarihi').value = '';
+        } catch (error) {
+          console.error('Error creating task:', error);
+          YeniTaskEkle.style.display = "flex"; 
+        }
       }
     });
   }
@@ -292,7 +485,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const nameValue = editNameInput.value.trim();
         const dateValue = editDateInput.value;
         
-        if (nameValue !== '' && isValidDate(dateValue)) {
+        if (nameValue !== '' && isValidDate(dateValue) && !isLoading) {
           newKaydetButton.disabled = false;
         } else {
           newKaydetButton.disabled = true;
@@ -308,39 +501,45 @@ document.addEventListener("DOMContentLoaded", function () {
       
       checkEditFields();
       
-      newKaydetButton.addEventListener("click", function(e) {
+      newKaydetButton.addEventListener("click", async function(e) {
         e.preventDefault();
         const newName = editNameInput.value;
         const newDescription = editDescriptionInput.value;
         const newDate = editDateInput.value;
         
         if (newName.trim() !== '' && isValidDate(newDate)) {
-          const taskNameSpan = taskCard.querySelector('.Task-isim');
-          const taskDateSpan = taskCard.querySelector('.Son-tarih');
-          if (taskNameSpan) taskNameSpan.textContent = newName;
-          if (taskDateSpan) taskDateSpan.textContent = formatDate(newDate);
+          const taskId = taskCard.getAttribute('data-task-id');
           
-          taskCard.setAttribute('data-description', newDescription);
-          taskCard.setAttribute('data-name', newName);
-          taskCard.setAttribute('data-date', newDate);
-          
-          makeTaskDraggable(taskCard);
-          const durumSelect = modal.querySelector('#Task-Durum-editleme');
-          if (durumSelect) {
-            let targetTasklar = null;
-            if (durumSelect.value === 'open') {
-              targetTasklar = document.getElementById('open');
-            } else if (durumSelect.value === 'in-progress') {
-              targetTasklar = document.getElementById('in-progress');
-            } else if (durumSelect.value === 'done') {
-              targetTasklar = document.getElementById('done');
+          try {
+            const updatedTask = await updateTask(taskId, {
+              name: newName,
+              description: newDescription,
+              date: newDate
+            });
+            
+            if (updatedTask) {
+              const taskNameSpan = taskCard.querySelector('.Task-isim');
+              const taskDateSpan = taskCard.querySelector('.Son-tarih');
+              if (taskNameSpan) taskNameSpan.textContent = newName;
+              if (taskDateSpan) taskDateSpan.textContent = formatDate(newDate);
+              
+              const durumSelect = modal.querySelector('#Task-Durum-editleme');
+              if (durumSelect && durumSelect.value !== updatedTask.status) {
+                const newStatus = durumSelect.value;
+                await updateTask(taskId, { status: newStatus });
+                
+                const targetContainer = getContainerByStatus(newStatus);
+                if (targetContainer && taskCard.parentNode !== targetContainer) {
+                  targetContainer.appendChild(taskCard);
+                  updateTaskStatus(taskCard, targetContainer.parentNode);
+                }
+              }
             }
-            if (targetTasklar && taskCard.parentNode !== targetTasklar) {
-              targetTasklar.appendChild(taskCard);
-              updateTaskStatus(taskCard, targetTasklar.parentNode); 
-            }
+            
+            modal.style.display = "none";
+          } catch (error) {
+            console.error('Error updating task:', error);
           }
-          modal.style.display = "none";
         }
       });
     }
@@ -350,12 +549,31 @@ document.addEventListener("DOMContentLoaded", function () {
       const newSilButton = silButton.cloneNode(true);
       silButton.parentNode.replaceChild(newSilButton, silButton);
       
-      newSilButton.addEventListener("click", function(e) {
+      newSilButton.addEventListener("click", async function(e) {
         e.preventDefault();
-        taskCard.remove();
-        modal.style.display = "none";
+        const taskId = taskCard.getAttribute('data-task-id');
+        
+        try {
+          const deleted = await deleteTask(taskId);
+          if (deleted) {
+            taskCard.remove();
+          }
+          
+          modal.style.display = "none";
+        } catch (error) {
+          console.error('Error deleting task:', error);
+        }
       });
     }
   }
+
+  (async function initializeApp() {
+    try {
+      await loadTasksFromStorage();
+      renderTasks();
+    } catch (error) {
+      console.error('Error initializing app:', error);
+    }
+  })();
 });
 
