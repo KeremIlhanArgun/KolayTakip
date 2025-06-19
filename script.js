@@ -1,0 +1,235 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const button = document.getElementById("button1"); 
+  const modal = document.getElementById("task-edit-arkaplan"); 
+  const vazgec = document.getElementById("vazgec2");
+  const YeniTaskEkle = document.getElementById('yeni-task-ekleme-arkaplan')
+  const vazgec2 = document.getElementById("vazgec");
+  const createButtonModal = document.getElementById("olustur-button");
+  const openAlan = document.getElementById("open");
+  const taskForm = document.querySelector('.Ana-form-uretme');
+  const editForm = document.querySelector('.Ana-form-edit');
+  
+  const kutuElements = document.querySelectorAll('.kutu');
+  function getTasklarDiv(kutu) {
+    return kutu.querySelector('.tasklar');
+  }
+  
+  function formatDate(dateString) {
+    if (!dateString) return 'Tarih belirtilmedi';
+    
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+  }
+  
+  function updateTaskStatus(taskCard, column) {
+    const taskNameSpan = taskCard.querySelector('.Task-isim');
+    const doneTasklar = document.getElementById('done');
+    if (taskNameSpan) {
+      if (getTasklarDiv(column) === doneTasklar) {
+        taskNameSpan.style.textDecoration = 'line-through';
+        taskNameSpan.style.color = '#888';
+      } else {
+        taskNameSpan.style.textDecoration = 'none';
+        taskNameSpan.style.color = '#333';
+      }
+    }
+  }
+  
+  function makeTaskDraggable(taskCard) {
+    taskCard.draggable = true;
+    taskCard.addEventListener('dragstart', function(e) {
+      e.dataTransfer.setData('text/plain', '');
+      taskCard.style.opacity = '0.5';
+    });
+    
+    taskCard.addEventListener('dragend', function(e) {
+      taskCard.style.opacity = '1';
+    });
+  }
+  
+  function makeColumnDroppable(kutu) {
+    if (!kutu) return;
+    
+    kutu.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      kutu.style.backgroundColor = '#e8f5e8';
+    });
+    
+    kutu.addEventListener('dragleave', function(e) {
+      kutu.style.backgroundColor = '';
+    });
+    
+    kutu.addEventListener('drop', function(e) {
+      e.preventDefault();
+      kutu.style.backgroundColor = '';
+      
+      const draggedTask = document.querySelector('.gorev-icerik[style*="opacity: 0.5"]');
+      const tasklarDiv = getTasklarDiv(kutu);
+      if (draggedTask && tasklarDiv && draggedTask.parentNode !== tasklarDiv) {
+        tasklarDiv.appendChild(draggedTask);
+        updateTaskStatus(draggedTask, kutu);
+      }
+    });
+  }
+  
+  if (taskForm) {
+    taskForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      return false;
+    });
+  }
+
+  if (editForm) {
+    editForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      return false;
+    });
+  }
+
+  if (YeniTaskEkle) {
+    YeniTaskEkle.addEventListener("click", function(e) {
+      if (e.target === YeniTaskEkle) {
+        YeniTaskEkle.style.display = "none";
+      }
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal) {
+        modal.style.display = "none";
+      }
+    });
+  }
+
+  if (vazgec && modal) {
+    vazgec.addEventListener("click", function () {
+      modal.style.display = "none";
+    });
+  }
+
+  if (vazgec2 && YeniTaskEkle) {
+    vazgec2.addEventListener("click", function () {
+      YeniTaskEkle.style.display = "none";
+    });
+  }
+
+  if (createButtonModal) {
+    createButtonModal.addEventListener("click", function () {
+      YeniTaskEkle.style.display = "none";
+      const nameInput = document.getElementById('Task-adı').value;
+      const descriptionInput = document.getElementById('Task-acıklaması').value;
+      const dateInput = document.getElementById('Task-Tarihi').value;
+
+      if (nameInput.trim() !== '') {
+        const TaskKartEkle = document.createElement('div');
+        TaskKartEkle.classList.add('gorev-icerik');
+
+        const Taskisim = document.createElement('span');
+        Taskisim.classList.add('Task-isim');
+        Taskisim.textContent = nameInput;
+
+        const TaskTarih = document.createElement('span');
+        TaskTarih.classList.add('Son-tarih');
+        TaskTarih.textContent = formatDate(dateInput);
+
+        TaskKartEkle.appendChild(Taskisim);
+        TaskKartEkle.appendChild(TaskTarih);
+
+        TaskKartEkle.setAttribute('data-description', descriptionInput);
+
+        TaskKartEkle.addEventListener("click", function() {
+          openEditModal(TaskKartEkle, nameInput, descriptionInput, dateInput);
+        });
+
+        makeTaskDraggable(TaskKartEkle);
+
+        openAlan.appendChild(TaskKartEkle);
+
+        document.getElementById('Task-adı').value = '';
+        document.getElementById('Task-acıklaması').value = '';
+        document.getElementById('Task-Tarihi').value = '';
+      }
+    });
+  }
+  
+  if (button && YeniTaskEkle) {
+    button.addEventListener("click", function () {
+      YeniTaskEkle.style.display = "flex";
+    });
+  }
+
+  kutuElements.forEach(makeColumnDroppable);
+  
+  function openEditModal(taskCard, taskName, taskDescription, taskDate) {
+    modal.style.display = "flex";
+    const editNameInput = modal.querySelector('#Task-adı');
+    const editDescriptionInput = modal.querySelector('#Task-acıklaması');
+    const editDateInput = modal.querySelector('#Task-Tarihi');
+    if (editNameInput) editNameInput.value = taskName;
+    if (editDescriptionInput) editDescriptionInput.value = taskDescription;
+    if (editDateInput) editDateInput.value = taskDate;
+    const durumSelect = modal.querySelector('#Task-Durum-editleme');
+    if (durumSelect) {
+      const parentTasklar = taskCard.parentNode;
+      if (parentTasklar && parentTasklar.id === 'open') {
+        durumSelect.value = 'open';
+      } else if (parentTasklar && parentTasklar.id === 'in-progress') {
+        durumSelect.value = 'in-progress';
+      } else if (parentTasklar && parentTasklar.id === 'done') {
+        durumSelect.value = 'done';
+      }
+    }
+    
+    const kaydetButton = document.getElementById('kaydet');
+    if (kaydetButton) {
+      const newKaydetButton = kaydetButton.cloneNode(true);
+      kaydetButton.parentNode.replaceChild(newKaydetButton, kaydetButton);
+      newKaydetButton.addEventListener("click", function(e) {
+        e.preventDefault();
+        const newName = editNameInput.value;
+        const newDescription = editDescriptionInput.value;
+        const newDate = editDateInput.value;
+        const taskNameSpan = taskCard.querySelector('.Task-isim');
+        const taskDateSpan = taskCard.querySelector('.Son-tarih');
+        if (taskNameSpan) taskNameSpan.textContent = newName;
+        if (taskDateSpan) taskDateSpan.textContent = formatDate(newDate);
+        taskCard.setAttribute('data-description', newDescription);
+        makeTaskDraggable(taskCard);
+        const durumSelect = modal.querySelector('#Task-Durum-editleme');
+        if (durumSelect) {
+          let targetTasklar = null;
+          if (durumSelect.value === 'open') {
+            targetTasklar = document.getElementById('open');
+          } else if (durumSelect.value === 'in-progress') {
+            targetTasklar = document.getElementById('in-progress');
+          } else if (durumSelect.value === 'done') {
+            targetTasklar = document.getElementById('done');
+          }
+          if (targetTasklar && taskCard.parentNode !== targetTasklar) {
+            targetTasklar.appendChild(taskCard);
+            updateTaskStatus(taskCard, targetTasklar.parentNode); 
+          }
+        }
+        modal.style.display = "none";
+      });
+    }
+    
+    const silButton = document.getElementById('sil');
+    if (silButton) {
+      const newSilButton = silButton.cloneNode(true);
+      silButton.parentNode.replaceChild(newSilButton, silButton);
+      
+      newSilButton.addEventListener("click", function(e) {
+        e.preventDefault();
+        taskCard.remove();
+        modal.style.display = "none";
+      });
+    }
+  }
+});
+
