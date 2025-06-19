@@ -11,6 +11,18 @@ document.addEventListener("DOMContentLoaded", function () {
   const kutuElements = document.querySelectorAll('.kutu');
   const nameInput = document.getElementById('Task-adı');
 
+
+
+
+
+
+
+
+
+
+
+
+
  function checkRequiredFields() {
   if (nameInput.value.trim() !== ''){
     createButtonModal.disabled = false;
@@ -64,15 +76,21 @@ document.addEventListener("DOMContentLoaded", function () {
         taskNameSpan.style.color = '#888';
         taskDateSpan.style.textDecoration='line-through';
         taskDateSpan.style.color= '#888';
+         taskCard.classList.add('done');
       } else {
         taskNameSpan.style.textDecoration = 'none';
         taskNameSpan.style.color = '#333';
         taskDateSpan.style.textDecoration = 'none';
         taskDateSpan.style.color = '#333';
+        taskCard.classList.remove('done');
       }
     }
   }
   
+
+  /*   */ /*   */ /*   */ /*   */ /*   */ /*   */ /*   */ /*   */ 
+
+
   function makeTaskDraggable(taskCard) {
     taskCard.draggable = true;
     taskCard.addEventListener('dragstart', function(e) {
@@ -81,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     
     taskCard.addEventListener('dragend', function(e) {
-      taskCard.style.opacity = '1';
+      taskCard.style.opacity = '';
     });
   }
   
