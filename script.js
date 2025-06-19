@@ -8,8 +8,37 @@ document.addEventListener("DOMContentLoaded", function () {
   const openAlan = document.getElementById("open");
   const taskForm = document.querySelector('.Ana-form-uretme');
   const editForm = document.querySelector('.Ana-form-edit');
-  
   const kutuElements = document.querySelectorAll('.kutu');
+  const nameInput = document.getElementById('Task-adı');
+
+ function checkRequiredFields() {
+  if (nameInput.value.trim() !== ''){
+    createButtonModal.disabled = false;
+  }
+  else {
+    createButtonModal.disabled = true;
+  }
+ }
+
+  if (nameInput && createButtonModal) {
+  nameInput.addEventListener('input',checkRequiredFields);
+  }
+
+  if (button && YeniTaskEkle) {
+  button.addEventListener('click',function(){
+  YeniTaskEkle.style.display ='flex';
+  checkRequiredFields });
+
+ if (createButtonModal){
+  createButtonModal.addEventListener('click', function(){
+    createButtonModal.disabled = true;
+    });
+  }
+ }
+
+
+
+
   function getTasklarDiv(kutu) {
     return kutu.querySelector('.tasklar');
   }
@@ -27,14 +56,19 @@ document.addEventListener("DOMContentLoaded", function () {
   
   function updateTaskStatus(taskCard, column) {
     const taskNameSpan = taskCard.querySelector('.Task-isim');
+    const taskDateSpan = taskCard.querySelector('.Son-tarih')
     const doneTasklar = document.getElementById('done');
     if (taskNameSpan) {
       if (getTasklarDiv(column) === doneTasklar) {
         taskNameSpan.style.textDecoration = 'line-through';
         taskNameSpan.style.color = '#888';
+        taskDateSpan.style.textDecoration='line-through';
+        taskDateSpan.style.color= '#888';
       } else {
         taskNameSpan.style.textDecoration = 'none';
         taskNameSpan.style.color = '#333';
+        taskDateSpan.style.textDecoration = 'none';
+        taskDateSpan.style.color = '#333';
       }
     }
   }
