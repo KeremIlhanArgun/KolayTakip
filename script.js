@@ -10,30 +10,42 @@ document.addEventListener("DOMContentLoaded", function () {
   const editForm = document.querySelector('.Ana-form-edit');
   const kutuElements = document.querySelectorAll('.kutu');
   const nameInput = document.getElementById('Task-adı');
+  const dateInput = document.getElementById('Task-Tarihi');
 
-
-
-
-
-
-
-
-
-
-
-
-
- function checkRequiredFields() {
-  if (nameInput.value.trim() !== ''){
-    createButtonModal.disabled = false;
+  if (dateInput) {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
   }
-  else {
-    createButtonModal.disabled = true;
+
+  function checkRequiredFields() {
+    const nameValue = nameInput.value.trim();
+    const dateValue = dateInput.value;
+    
+    if (nameValue !== '' && isValidDate(dateValue)) {
+      createButtonModal.disabled = false;
+    } else {
+      createButtonModal.disabled = true;
+    }
   }
- }
+
+  function isValidDate(dateString) {
+    if (!dateString) return true;
+    
+    const selectedDate = new Date(dateString);
+    const today = new Date();
+    
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+    
+    return selectedDate >= today;
+  }
 
   if (nameInput && createButtonModal) {
-  nameInput.addEventListener('input',checkRequiredFields);
+    nameInput.addEventListener('input', checkRequiredFields);
+  }
+
+  if (dateInput && createButtonModal) {
+    dateInput.addEventListener('change', checkRequiredFields);
   }
 
   if (button && YeniTaskEkle) {
@@ -172,30 +184,36 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (createButtonModal) {
     createButtonModal.addEventListener("click", function () {
-      YeniTaskEkle.style.display = "none";
-      const nameInput = document.getElementById('Task-adı').value;
+      const nameInputValue = document.getElementById('Task-adı').value;
       const descriptionInput = document.getElementById('Task-acıklaması').value;
-      const dateInput = document.getElementById('Task-Tarihi').value;
+      const dateInputValue = document.getElementById('Task-Tarihi').value;
 
-      if (nameInput.trim() !== '') {
+      if (nameInputValue.trim() !== '' && isValidDate(dateInputValue)) {
+        YeniTaskEkle.style.display = "none";
+        
         const TaskKartEkle = document.createElement('div');
         TaskKartEkle.classList.add('gorev-icerik');
 
         const Taskisim = document.createElement('span');
         Taskisim.classList.add('Task-isim');
-        Taskisim.textContent = nameInput;
+        Taskisim.textContent = nameInputValue;
 
         const TaskTarih = document.createElement('span');
         TaskTarih.classList.add('Son-tarih');
-        TaskTarih.textContent = formatDate(dateInput);
+        TaskTarih.textContent = formatDate(dateInputValue);
 
         TaskKartEkle.appendChild(Taskisim);
         TaskKartEkle.appendChild(TaskTarih);
 
         TaskKartEkle.setAttribute('data-description', descriptionInput);
+        TaskKartEkle.setAttribute('data-name', nameInputValue);
+        TaskKartEkle.setAttribute('data-date', dateInputValue);
 
         TaskKartEkle.addEventListener("click", function() {
-          openEditModal(TaskKartEkle, nameInput, descriptionInput, dateInput);
+          const currentName = this.getAttribute('data-name');
+          const currentDescription = this.getAttribute('data-description');
+          const currentDate = this.getAttribute('data-date');
+          openEditModal(TaskKartEkle, currentName, currentDescription, currentDate);
         });
 
         makeTaskDraggable(TaskKartEkle);
@@ -222,18 +240,46 @@ document.addEventListener("DOMContentLoaded", function () {
     const editNameInput = modal.querySelector('#Task-adı');
     const editDescriptionInput = modal.querySelector('#Task-acıklaması');
     const editDateInput = modal.querySelector('#Task-Tarihi');
+    
+    const modalTitle = modal.querySelector('.pencere-icerigi-edit-title');
+    if (modalTitle) {
+      modalTitle.textContent = `"${taskName}" Düzenliyorsunuz`;
+    }
+    
     if (editNameInput) editNameInput.value = taskName;
     if (editDescriptionInput) editDescriptionInput.value = taskDescription;
-    if (editDateInput) editDateInput.value = taskDate;
+    if (editDateInput) {
+      editDateInput.value = taskDate;
+      const today = new Date().toISOString().split('T')[0];
+      editDateInput.setAttribute('min', today);
+    }
+    
     const durumSelect = modal.querySelector('#Task-Durum-editleme');
     if (durumSelect) {
+      const options = durumSelect.querySelectorAll('option');
+      options.forEach(option => {
+        option.disabled = false;
+      });
+      
       const parentTasklar = taskCard.parentNode;
+      let currentStatus = '';
+      
       if (parentTasklar && parentTasklar.id === 'open') {
         durumSelect.value = 'open';
+        currentStatus = 'open';
       } else if (parentTasklar && parentTasklar.id === 'in-progress') {
         durumSelect.value = 'in-progress';
+        currentStatus = 'in-progress';
       } else if (parentTasklar && parentTasklar.id === 'done') {
         durumSelect.value = 'done';
+        currentStatus = 'done';
+      }
+      
+      if (currentStatus) {
+        const currentOption = durumSelect.querySelector(`option[value="${currentStatus}"]`);
+        if (currentOption) {
+          currentOption.disabled = true;
+        }
       }
     }
     
@@ -241,33 +287,61 @@ document.addEventListener("DOMContentLoaded", function () {
     if (kaydetButton) {
       const newKaydetButton = kaydetButton.cloneNode(true);
       kaydetButton.parentNode.replaceChild(newKaydetButton, kaydetButton);
+      
+      function checkEditFields() {
+        const nameValue = editNameInput.value.trim();
+        const dateValue = editDateInput.value;
+        
+        if (nameValue !== '' && isValidDate(dateValue)) {
+          newKaydetButton.disabled = false;
+        } else {
+          newKaydetButton.disabled = true;
+        }
+      }
+      
+      if (editNameInput) {
+        editNameInput.addEventListener('input', checkEditFields);
+      }
+      if (editDateInput) {
+        editDateInput.addEventListener('change', checkEditFields);
+      }
+      
+      checkEditFields();
+      
       newKaydetButton.addEventListener("click", function(e) {
         e.preventDefault();
         const newName = editNameInput.value;
         const newDescription = editDescriptionInput.value;
         const newDate = editDateInput.value;
-        const taskNameSpan = taskCard.querySelector('.Task-isim');
-        const taskDateSpan = taskCard.querySelector('.Son-tarih');
-        if (taskNameSpan) taskNameSpan.textContent = newName;
-        if (taskDateSpan) taskDateSpan.textContent = formatDate(newDate);
-        taskCard.setAttribute('data-description', newDescription);
-        makeTaskDraggable(taskCard);
-        const durumSelect = modal.querySelector('#Task-Durum-editleme');
-        if (durumSelect) {
-          let targetTasklar = null;
-          if (durumSelect.value === 'open') {
-            targetTasklar = document.getElementById('open');
-          } else if (durumSelect.value === 'in-progress') {
-            targetTasklar = document.getElementById('in-progress');
-          } else if (durumSelect.value === 'done') {
-            targetTasklar = document.getElementById('done');
+        
+        if (newName.trim() !== '' && isValidDate(newDate)) {
+          const taskNameSpan = taskCard.querySelector('.Task-isim');
+          const taskDateSpan = taskCard.querySelector('.Son-tarih');
+          if (taskNameSpan) taskNameSpan.textContent = newName;
+          if (taskDateSpan) taskDateSpan.textContent = formatDate(newDate);
+          
+          taskCard.setAttribute('data-description', newDescription);
+          taskCard.setAttribute('data-name', newName);
+          taskCard.setAttribute('data-date', newDate);
+          
+          makeTaskDraggable(taskCard);
+          const durumSelect = modal.querySelector('#Task-Durum-editleme');
+          if (durumSelect) {
+            let targetTasklar = null;
+            if (durumSelect.value === 'open') {
+              targetTasklar = document.getElementById('open');
+            } else if (durumSelect.value === 'in-progress') {
+              targetTasklar = document.getElementById('in-progress');
+            } else if (durumSelect.value === 'done') {
+              targetTasklar = document.getElementById('done');
+            }
+            if (targetTasklar && taskCard.parentNode !== targetTasklar) {
+              targetTasklar.appendChild(taskCard);
+              updateTaskStatus(taskCard, targetTasklar.parentNode); 
+            }
           }
-          if (targetTasklar && taskCard.parentNode !== targetTasklar) {
-            targetTasklar.appendChild(taskCard);
-            updateTaskStatus(taskCard, targetTasklar.parentNode); 
-          }
+          modal.style.display = "none";
         }
-        modal.style.display = "none";
       });
     }
     
